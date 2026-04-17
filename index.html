@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Taipei Trip · 18–22 Apr 2026</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,sans-serif;font-size:13px;background:#f2f2f7;color:#1c1c1e;min-height:100vh}
+.wrap{padding:12px;max-width:1100px;margin:0 auto}
+.hdr{background:#fff;border-radius:14px;padding:14px 16px;margin-bottom:10px;border:0.5px solid #e0e0e0}
+.hdr h1{font-size:16px;font-weight:600;color:#1c1c1e;margin-bottom:2px}
+.hdr p{font-size:11px;color:#8e8e93}
+.save-bar{display:flex;align-items:center;gap:6px;margin-top:8px;flex-wrap:wrap;justify-content:space-between}
+.save-indicator{display:flex;align-items:center;gap:5px;font-size:10px;color:#8e8e93}
+.save-dot{width:7px;height:7px;border-radius:50%;background:#c7c7cc;flex-shrink:0;transition:background .3s}
+.reset-btn{padding:3px 10px;font-size:10px;border:0.5px solid #c7c7cc;border-radius:8px;background:transparent;color:#8e8e93;cursor:pointer}
+.reset-btn:hover{color:#ff3b30;border-color:#ff3b30}
+.mtabs{display:flex;background:#fff;border-radius:14px;border:0.5px solid #e0e0e0;overflow:hidden;margin-bottom:10px}
+.mtab{flex:1;padding:11px 10px;font-size:12px;font-weight:500;border:none;background:transparent;color:#8e8e93;cursor:pointer;border-right:0.5px solid #e0e0e0}
+.mtab:last-child{border-right:none}
+.mtab.on{background:#e8f0fb;color:#1a5fba;font-weight:600}
+.sec{display:none}.sec.on{display:block}
+.card{background:#fff;border-radius:14px;border:0.5px solid #e0e0e0;padding:12px 14px;margin-bottom:10px}
+.toprow{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:10px}
+.vbtns{display:flex;gap:5px}
+.vtbtn{padding:5px 12px;font-size:11px;border:0.5px solid #c7c7cc;border-radius:8px;background:transparent;color:#8e8e93;cursor:pointer;font-weight:500}
+.vtbtn.on{background:#e8e8e8;color:#1c1c1e;font-weight:600}
+.ratebox{font-size:11px;color:#8e8e93;display:flex;align-items:center;gap:5px;flex-wrap:wrap}
+.ratebox input{width:54px;border:0.5px solid #c7c7cc;border-radius:8px;padding:4px 6px;font-size:11px;background:#fff;color:#1c1c1e}
+.dtabs{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:10px}
+.dtab{padding:5px 13px;font-size:11px;font-weight:500;border:0.5px solid #c7c7cc;border-radius:8px;background:transparent;color:#8e8e93;cursor:pointer}
+.dtab.on{background:#dbeafe;color:#1a5fba;border-color:#93c5fd;font-weight:600}
+.prog-lbl{font-size:10px;color:#8e8e93;margin-bottom:5px}
+.prog-bar{height:4px;background:#e5e5ea;border-radius:2px;margin-bottom:12px;overflow:hidden}
+.prog-fill{height:100%;background:#1a5fba;border-radius:2px;transition:width .3s}
+.day-blk{margin-bottom:14px}
+.day-hdr{display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:#f2f2f7;border-radius:10px;margin-bottom:7px}
+.day-title{font-size:12px;font-weight:600;color:#1c1c1e}
+.day-sub{font-size:10px;color:#8e8e93;margin-top:1px}
+.abtn{padding:4px 11px;font-size:11px;border:0.5px solid #c7c7cc;border-radius:8px;background:#fff;color:#8e8e93;cursor:pointer}
+.tscroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.itbl{width:100%;border-collapse:collapse;min-width:840px}
+.itbl th{padding:5px 6px;color:#8e8e93;font-weight:600;border-bottom:0.5px solid #e5e5ea;font-size:10px;white-space:nowrap;text-align:left;vertical-align:middle;background:#fafafa}
+.itbl td{padding:3px 5px;border-bottom:0.5px solid #f2f2f7;vertical-align:middle;height:34px}
+.itbl tr.done td{opacity:0.35;text-decoration:line-through}
+.itbl tr.done td:first-child,.itbl tr.done td:nth-child(2){opacity:1;text-decoration:none}
+.itbl tr.done td:last-child{opacity:1;text-decoration:none}
+.itbl tr:hover td{background:#fafafa}
+.itbl tr.dragover td{border-top:2px solid #1a5fba}
+.dh{cursor:grab;color:#c7c7cc;font-size:14px;user-select:none;display:block;text-align:center}
+.cb{width:15px;height:15px;cursor:pointer;accent-color:#1a5fba}
+.inp-time{width:92px;border:0.5px solid #e0e0e0;border-radius:6px;padding:4px 6px;font-size:10px;background:#fff;color:#1c1c1e}
+.inp-time:focus{outline:none;border-color:#1a5fba}
+.inp-name{width:100%;min-width:130px;border:0.5px solid transparent;border-radius:6px;padding:4px 6px;font-size:10px;background:transparent;color:#1c1c1e}
+.inp-name:hover{border-color:#e0e0e0}
+.inp-name:focus{outline:none;border-color:#1a5fba;background:#f0f6ff}
+.inp-notes{width:100%;min-width:190px;border:0.5px solid transparent;border-radius:6px;padding:4px 6px;font-size:10px;background:transparent;color:#1c1c1e}
+.inp-notes:hover{border-color:#e0e0e0}
+.inp-notes:focus{outline:none;border-color:#1a5fba;background:#f0f6ff}
+.inp-curr{width:86px;border:0.5px solid #e0e0e0;border-radius:6px;padding:4px 6px;font-size:10px;background:#fff;color:#1c1c1e;text-align:right}
+.inp-curr:focus{outline:none;border-color:#1a5fba}
+.sel-cat{width:92px;border:0.5px solid #e0e0e0;border-radius:6px;padding:4px 5px;font-size:10px;background:#fff;color:#1c1c1e}
+.sel-move{width:64px;border:0.5px solid #e0e0e0;border-radius:6px;padding:4px 4px;font-size:10px;background:#fff;color:#8e8e93;cursor:pointer}
+.xbtn{background:transparent;border:none;cursor:pointer;padding:3px 5px;color:#c7c7cc;font-size:13px;border-radius:6px}
+.xbtn:hover{color:#ff3b30}
+.rtbl{width:100%;border-collapse:collapse;min-width:840px}
+.rtbl th{padding:5px 7px;color:#8e8e93;font-weight:600;border-bottom:0.5px solid #e5e5ea;font-size:10px;text-align:left;white-space:nowrap;vertical-align:middle;background:#fafafa}
+.rtbl td{padding:4px 6px;border-bottom:0.5px solid #f2f2f7;vertical-align:middle;height:34px}
+.rtbl tr:hover td{background:#fafafa}
+.ri{width:100%;border:0.5px solid transparent;border-radius:6px;padding:3px 5px;font-size:10px;background:transparent;color:#1c1c1e}
+.ri:hover{border-color:#e0e0e0}
+.ri:focus{outline:none;border-color:#1a5fba;background:#f0f6ff}
+.rsl{width:100%;border:0.5px solid #e0e0e0;border-radius:6px;padding:3px 5px;font-size:10px;background:#fff;color:#1c1c1e}
+.dasl{width:100%;border:0.5px solid #93c5fd;border-radius:6px;padding:3px 5px;font-size:10px;background:#dbeafe;color:#1a5fba;cursor:pointer;font-weight:600}
+.amtcell{font-size:10px;font-weight:600;color:#1c1c1e;white-space:nowrap}
+.sum-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(105px,1fr));gap:7px;margin-bottom:10px}
+.sc{background:#f2f2f7;border-radius:10px;padding:9px 11px}
+.sc-lbl{font-size:9px;color:#8e8e93;font-weight:600;text-transform:uppercase;letter-spacing:.05em;margin-bottom:3px}
+.sc-ntd{font-size:14px;font-weight:600;color:#1c1c1e}
+.sc-thb{font-size:10px;color:#8e8e93;margin-top:1px}
+.grand{background:#1a5fba;border-radius:12px;padding:12px 16px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px}
+.grand-lbl{font-size:12px;color:rgba(255,255,255,.8);font-weight:500}
+.grand-ntd{font-size:20px;font-weight:700;color:#fff}
+.grand-thb{font-size:12px;color:rgba(255,255,255,.7)}
+.sec-title{font-size:13px;font-weight:600;color:#1c1c1e;margin-bottom:10px}
+.dbk-row{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.dbk-lbl{font-size:11px;font-weight:600;color:#1c1c1e;min-width:48px}
+.dbk-bar{flex:1;height:6px;background:#e5e5ea;border-radius:3px;overflow:hidden}
+.dbk-fill{height:100%;background:#1a5fba;border-radius:3px}
+.dbk-val{font-size:11px;color:#8e8e93;white-space:nowrap;min-width:155px;text-align:right}
+.form-blk{margin-top:12px;border:0.5px solid #c7c7cc;border-radius:14px;padding:16px;background:#fff;display:none}
+.form-blk.on{display:block}
+.form-blk h3{font-size:13px;font-weight:600;color:#1c1c1e;margin-bottom:12px}
+.fgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.fgrid label{font-size:10px;color:#8e8e93;display:block;margin-bottom:3px;font-weight:500}
+.fgrid input,.fgrid select,.fgrid textarea{width:100%;border:0.5px solid #c7c7cc;border-radius:8px;padding:7px 10px;font-size:13px;background:#fff;color:#1c1c1e}
+.fgrid input:focus,.fgrid select:focus,.fgrid textarea:focus{outline:none;border-color:#1a5fba}
+.fgrid textarea{resize:vertical;height:58px}
+.fgrid .full{grid-column:1/-1}
+.frow{display:flex;gap:8px;justify-content:flex-end;margin-top:12px}
+.frow button{padding:7px 18px;font-size:12px;border-radius:10px;cursor:pointer;border:0.5px solid #c7c7cc;font-weight:600}
+.fbtn{background:#1a5fba;color:#fff;border-color:#1a5fba}
+.fcnl{background:transparent;color:#8e8e93}
+.radd{padding:7px 16px;font-size:12px;border:0.5px solid #93c5fd;border-radius:10px;background:#dbeafe;color:#1a5fba;cursor:pointer;font-weight:600}
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#1c1c1e;color:#fff;padding:9px 20px;border-radius:12px;font-size:12px;font-weight:500;opacity:0;transition:opacity .2s;pointer-events:none;white-space:nowrap;z-index:999}
+.toast.on{opacity:1}
+@media(max-width:500px){.fgrid{grid-template-columns:1fr}.fgrid .full{grid-column:1}}
+</style>
+</head>
+<body>
+<div class="toast" id="toast"></div>
+<div class="wrap">
+<div class="hdr">
+  <h1>Taipei Trip · 18–22 Apr 2026</h1>
+  <p>The Okura Prestige · Bow + Mum · 2 pax</p>
+  <div class="save-bar">
+    <div class="save-indicator"><div class="save-dot" id="saveDot"></div><span id="saveMsg">Loading...</span></div>
+    <button class="reset-btn" onclick="resetAll()">Reset all data</button>
+  </div>
+</div>
+<div class="mtabs">
+  <button class="mtab on" onclick="mTab('itin')">Itinerary</button>
+  <button class="mtab" onclick="mTab('rest')">Restaurants</button>
+  <button class="mtab" onclick="mTab('exp')">Expenses</button>
+</div>
+<div class="sec on" id="sec-itin">
+  <div class="card">
+    <div class="toprow">
+      <div class="vbtns">
+        <button class="vtbtn on" id="vt-day" onclick="setView('day')">Day view</button>
+        <button class="vtbtn" id="vt-all" onclick="setView('all')">All days</button>
+      </div>
+      <div class="ratebox">1 NTD = <input type="number" id="rateIn" value="1.1" step="0.001" oninput="rateChanged()"> THB &nbsp;|&nbsp; 1 THB = <span id="revRate">0.909</span> NTD</div>
+    </div>
+    <div class="dtabs" id="dtabs"></div>
+    <div class="prog-lbl" id="progLbl"></div>
+    <div class="prog-bar"><div class="prog-fill" id="progFill"></div></div>
+    <div id="daysCont"></div>
+    <div class="form-blk" id="actForm">
+      <h3 id="actFormTitle">Add activity</h3>
+      <div class="fgrid">
+        <div><label>Activity name</label><input id="an" placeholder="Name"></div>
+        <div><label>Time</label><input id="at" placeholder="e.g. 10:00–12:00"></div>
+        <div><label>Category</label><select id="ac">
+          <option value="activity">Activity</option><option value="transport">Transport</option>
+          <option value="food">Food</option><option value="hotel">Hotel</option>
+          <option value="flight">Flight</option><option value="shopping">Shopping</option><option value="misc">Misc</option>
+        </select></div>
+        <div><label>NTD amount</label><input type="number" id="antd" placeholder="0" min="0"></div>
+        <div class="full"><label>Notes</label><textarea id="anotes" placeholder="Optional notes"></textarea></div>
+      </div>
+      <div class="frow">
+        <button class="fcnl" onclick="closeActForm()">Cancel</button>
+        <button class="fbtn" onclick="saveAct()">Save</button>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="sec" id="sec-rest">
+  <div class="card">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px">
+      <div class="sec-title" style="margin:0">Restaurant wishlist</div>
+      <button class="radd" onclick="toggleRestForm()">+ Add restaurant</button>
+    </div>
+    <div class="tscroll">
+      <table class="rtbl">
+        <thead><tr>
+          <th style="min-width:118px">Restaurant</th><th style="min-width:92px">Area / MRT</th>
+          <th style="min-width:84px">Cuisine</th><th style="min-width:94px">NTD (2 pax)</th>
+          <th style="min-width:88px">THB (2 pax)</th><th style="min-width:86px">Status</th>
+          <th style="min-width:200px">Notes</th><th style="min-width:76px">Assign day</th><th style="width:28px"></th>
+        </tr></thead>
+        <tbody id="restBody"></tbody>
+      </table>
+    </div>
+    <div class="form-blk" id="restForm">
+      <h3>Add restaurant</h3>
+      <div class="fgrid">
+        <div><label>Name</label><input id="rn" placeholder="e.g. Din Tai Fung"></div>
+        <div><label>Area / MRT</label><input id="ra" placeholder="e.g. Xinyi / 101"></div>
+        <div><label>Cuisine</label><input id="rc" placeholder="e.g. Taiwanese"></div>
+        <div><label>Est. cost per person (NTD)</label><input type="number" id="rp" placeholder="0" min="0"></div>
+        <div class="full"><label>Notes / must-order</label><textarea id="rnotes" placeholder="Reserve ahead, must try dish..."></textarea></div>
+      </div>
+      <div class="frow">
+        <button class="fcnl" onclick="toggleRestForm()">Cancel</button>
+        <button class="fbtn" onclick="saveRest()">Save</button>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="sec" id="sec-exp">
+  <div class="card">
+    <div class="sec-title">Summary by category</div>
+    <div class="sum-grid" id="sumGrid"></div>
+    <div class="grand">
+      <div class="grand-lbl">Total trip cost (2 pax)</div>
+      <div><div class="grand-ntd" id="gNTD">NT$0</div><div class="grand-thb" id="gTHB">฿0</div></div>
+    </div>
+    <div id="dbk" style="margin-top:14px"></div>
+  </div>
+</div>
+</div>
+<script>
+const SK='taipei-trip-v7';
+let rate=1.1,view='day',activeDay=0,modalDayId=null,dragSrc=null,saveTimer=null;
+const CATS={activity:'Activity',transport:'Transport',food:'Food',hotel:'Hotel',flight:'Flight',shopping:'Shopping',misc:'Misc'};
+const SCATS=['transport','hotel','flight','food','activity','shopping','misc'];
+function uid(){return Math.random().toString(36).slice(2,9)}
+const DD=[
+  {id:0,lbl:'Day 1',date:'Sat 18 Apr',theme:'Arrival + Historic Taipei',items:[
+    {id:'d1a',name:'Airport MRT (arrival)',time:'14:25–15:15',cat:'transport',ntd:320,notes:'TPE → Taipei Main · NT$160 x2',done:false},
+    {id:'d1b',name:'Taxi to Okura',time:'15:15',cat:'transport',ntd:140,notes:'Taipei Main → Okura',done:false},
+    {id:'d1c',name:'Check-in & refresh',time:'15:15–16:00',cat:'hotel',ntd:0,notes:'The Okura Prestige',done:false},
+    {id:'d1d',name:'Dihua Street',time:'16:15–18:00',cat:'activity',ntd:0,notes:'Historic merchant street · free entry',done:false},
+    {id:'d1e',name:'Xiahai City God Temple',time:'16:15–18:00',cat:'activity',ntd:0,notes:'07:00–19:00 · free entry',done:false},
+    {id:'d1f',name:'Zhongshan / Chifeng Street',time:'18:15–19:45',cat:'activity',ntd:0,notes:'Creative neighborhood · free',done:false},
+    {id:'d1g',name:'Ningxia Night Market',time:'20:00+',cat:'food',ntd:400,notes:'~NT$200pp · best 20:00–21:30',done:false},
+  ]},
+  {id:1,lbl:'Day 2',date:'Sun 19 Apr',theme:'Keelung Coast',items:[
+    {id:'d2a',name:'Taxi to Taipei Main',time:'08:45',cat:'transport',ntd:140,notes:'~8–10 min',done:false},
+    {id:'d2b',name:'TRA to Keelung (x2)',time:'09:30–10:10',cat:'transport',ntd:110,notes:'~NT$40–70pp · buy same-day',done:false},
+    {id:'d2c',name:'Taxi: station → Zhengbin',time:'10:20',cat:'transport',ntd:215,notes:'~NT$180–250',done:false},
+    {id:'d2d',name:'Zhengbin Colorful Houses',time:'10:20–11:00',cat:'activity',ntd:0,notes:'Photo stop · free entry',done:false},
+    {id:'d2e',name:'Heping Island Geopark (x2)',time:'11:10–13:30',cat:'activity',ntd:240,notes:'NT$120pp · 08:00–18:00',done:false},
+    {id:'d2f',name:'Lunch at Keelung',time:'13:30–14:30',cat:'food',ntd:400,notes:'~NT$200pp budget',done:false},
+    {id:'d2g',name:'Miaokou Night Market',time:'16:15–18:30',cat:'food',ntd:600,notes:'~NT$300pp · best before 19:00',done:false},
+    {id:'d2h',name:'TRA back to Taipei (x2)',time:'19:00–19:45',cat:'transport',ntd:110,notes:'~NT$40–70pp',done:false},
+  ]},
+  {id:2,lbl:'Day 3',date:'Mon 20 Apr',theme:'Yangmingshan + Beitou',items:[
+    {id:'d3a',name:'Taxi/Uber: Okura → Xiaoyoukeng',time:'08:30',cat:'transport',ntd:900,notes:'45–60 min · NT$700–1,100',done:false},
+    {id:'d3b',name:'Xiaoyoukeng Volcanic Area',time:'09:15–10:15',cat:'activity',ntd:0,notes:'Free · visitor center 09:00–16:30',done:false},
+    {id:'d3c',name:'Taxi: Xiaoyoukeng → Qingtiangang',time:'10:35',cat:'transport',ntd:275,notes:'~15–20 min',done:false},
+    {id:'d3d',name:'Qingtiangang Grassland',time:'10:35–12:15',cat:'activity',ntd:0,notes:'Free · buffalo roaming open field',done:false},
+    {id:'d3e',name:'Lunch on the mountain',time:'12:30–13:30',cat:'food',ntd:400,notes:'~NT$200pp',done:false},
+    {id:'d3f',name:'Taxi: Qingtiangang → Beitou',time:'14:15',cat:'transport',ntd:400,notes:'~25–35 min',done:false},
+    {id:'d3g',name:'Beitou Hot Spring (optional)',time:'15:00–16:30',cat:'activity',ntd:4000,notes:'Hotel Royal Beitou · NT$2,000/90min x2',done:false},
+    {id:'d3h',name:'Taxi: Beitou → Okura',time:'17:00',cat:'transport',ntd:350,notes:'~25–35 min',done:false},
+  ]},
+  {id:3,lbl:'Day 4',date:'Tue 21 Apr',theme:'Yingge + Longshan Temple',items:[
+    {id:'d4a',name:'Taxi to Taipei Main',time:'09:00',cat:'transport',ntd:140,notes:'~8–10 min',done:false},
+    {id:'d4b',name:'TRA to Yingge (x2)',time:'09:15–09:45',cat:'transport',ntd:110,notes:'~27–35 min · NT$40–70pp',done:false},
+    {id:'d4c',name:'Taxi: station → museum',time:'09:45',cat:'transport',ntd:125,notes:'~NT$100–150',done:false},
+    {id:'d4d',name:'Yingge Ceramics Museum (x2)',time:'09:45–12:00',cat:'activity',ntd:160,notes:'NT$80pp · 09:30–17:00 weekdays',done:false},
+    {id:'d4e',name:'Yingge Old Street + lunch',time:'12:00–13:15',cat:'food',ntd:500,notes:'Pottery browsing + ~NT$250pp lunch',done:false},
+    {id:'d4f',name:'TRA: Yingge → Taipei (x2)',time:'14:00',cat:'transport',ntd:110,notes:'Back toward Wanhua/Banqiao',done:false},
+    {id:'d4g',name:'Taxi to Longshan Temple',time:'14:45',cat:'transport',ntd:120,notes:'Short hop from station',done:false},
+    {id:'d4h',name:'Longshan Temple',time:'15:00–16:00',cat:'activity',ntd:0,notes:'Free · 06:00–22:00 daily',done:false},
+    {id:'d4i',name:'Wanhua wander',time:'16:00–17:00',cat:'activity',ntd:0,notes:'Free neighbourhood stroll',done:false},
+  ]},
+  {id:4,lbl:'Day 5',date:'Wed 22 Apr',theme:'Xinyi + Elephant Mtn + Songshan + Airport',items:[
+    {id:'d5a',name:'Taxi: Okura → Taipei 101',time:'09:30',cat:'transport',ntd:240,notes:'~15–20 min',done:false},
+    {id:'d5b',name:'Taipei 101 / Xinyi area',time:'09:30–10:45',cat:'activity',ntd:0,notes:'Mall/exterior free · observatory optional',done:false},
+    {id:'d5c',name:'Taipei 101 Observatory (optional, x2)',time:'10:00–11:00',cat:'activity',ntd:1200,notes:'NT$600pp · skip if time-tight',done:false},
+    {id:'d5d',name:'Taxi: 101 → Elephant Mountain',time:'11:00',cat:'transport',ntd:125,notes:'~5–10 min',done:false},
+    {id:'d5e',name:'Elephant Mountain hike',time:'11:00–12:15',cat:'activity',ntd:0,notes:'Free · open 24h · great city views',done:false},
+    {id:'d5f',name:'Lunch near Songshan',time:'12:30–13:15',cat:'food',ntd:500,notes:'~NT$250pp',done:false},
+    {id:'d5g',name:'Taxi: Elephant Mtn → Songshan',time:'13:30',cat:'transport',ntd:150,notes:'~10–15 min',done:false},
+    {id:'d5h',name:'Songshan Cultural Park',time:'13:30–15:00',cat:'activity',ntd:0,notes:'Free · info center 09:00–18:00',done:false},
+    {id:'d5i',name:'Eslite Songyan',time:'15:00–15:45',cat:'activity',ntd:0,notes:'Free entry · 11:00–22:00',done:false},
+    {id:'d5j',name:'Taxi: Songshan → Fujin Street',time:'16:00',cat:'transport',ntd:150,notes:'~10–15 min',done:false},
+    {id:'d5k',name:'Fujin Street stroll',time:'16:00–16:45',cat:'activity',ntd:0,notes:'Free design/cafe neighbourhood',done:false},
+    {id:'d5l',name:'Taxi to Taipei Main',time:'17:15',cat:'transport',ntd:160,notes:'~NT$120–200',done:false},
+    {id:'d5m',name:'Airport MRT (departure, x2)',time:'17:30',cat:'transport',ntd:320,notes:'Taipei Main → TPE · NT$160pp',done:false},
+  ]},
+];
+const DR=[
+  {id:'r1',name:'Din Tai Fung',area:'Xinyi / 101',cuisine:'Taiwanese',ntdPP:500,notes:'Xiao long bao · reserve ahead',status:'Want to go',assigned:null,lid:null},
+  {id:'r2',name:'Addiction Aquatic Dev.',area:'Zhongshan',cuisine:'Seafood',ntdPP:800,notes:'Premium seafood market + dining',status:'Want to go',assigned:null,lid:null},
+  {id:'r3',name:'RAW',area:'Zhongshan',cuisine:'Fine dining',ntdPP:3500,notes:'André Chiang · reserve weeks ahead',status:'Want to go',assigned:null,lid:null},
+  {id:'r4',name:'Ay-Chung Noodle',area:'Ximending',cuisine:'Street food',ntdPP:80,notes:'Oyster vermicelli · queue expected',status:'Want to go',assigned:null,lid:null},
+  {id:'r5',name:'Miaokou Pork Rice',area:'Keelung',cuisine:'Taiwanese',ntdPP:150,notes:'Day 2 — try at Miaokou Night Market',status:'Want to go',assigned:null,lid:null},
+];
+let days,rests;
+function setSave(s){
+  const dot=document.getElementById('saveDot'),msg=document.getElementById('saveMsg');
+  if(!dot||!msg)return;
+  const colors={saving:'#ff9500',saved:'#34c759',ready:'#c7c7cc'};
+  const texts={saving:'Saving...',saved:'All changes saved',ready:'Ready'};
+  dot.style.background=colors[s]||colors.ready;
+  msg.textContent=texts[s]||texts.ready;
+}
+function persist(){
+  setSave('saving');
+  try{localStorage.setItem(SK,JSON.stringify({days,rests,rate,view,activeDay}));setSave('saved');}
+  catch(e){setSave('ready');}
+}
+function scheduleSave(){clearTimeout(saveTimer);saveTimer=setTimeout(persist,500);}
+function loadSaved(){
+  try{
+    const raw=localStorage.getItem(SK);
+    if(raw){
+      const d=JSON.parse(raw);
+      days=d.days||JSON.parse(JSON.stringify(DD));
+      rests=d.rests||JSON.parse(JSON.stringify(DR));
+      rate=d.rate||1.1;view=d.view||'day';
+      activeDay=typeof d.activeDay==='number'?d.activeDay:0;
+      document.getElementById('rateIn').value=rate;
+      document.getElementById('revRate').textContent=(1/rate).toFixed(3);
+      setSave('saved');
+    } else {
+      days=JSON.parse(JSON.stringify(DD));rests=JSON.parse(JSON.stringify(DR));setSave('ready');
+    }
+  }catch(e){days=JSON.parse(JSON.stringify(DD));rests=JSON.parse(JSON.stringify(DR));setSave('ready');}
+  render();
+}
+function resetAll(){
+  if(!confirm('Reset everything to defaults? Cannot be undone.'))return;
+  localStorage.removeItem(SK);
+  days=JSON.parse(JSON.stringify(DD));rests=JSON.parse(JSON.stringify(DR));
+  rate=1.1;view='day';activeDay=0;
+  document.getElementById('rateIn').value=1.1;document.getElementById('revRate').textContent='0.909';
+  persist();render();showToast('Reset to defaults');
+}
+function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('on');setTimeout(()=>t.classList.remove('on'),2200);}
+function mTab(t){
+  document.querySelectorAll('.mtab').forEach((b,i)=>b.classList.toggle('on',['itin','rest','exp'][i]===t));
+  document.querySelectorAll('.sec').forEach(s=>s.classList.remove('on'));
+  document.getElementById('sec-'+t).classList.add('on');
+  if(t==='exp')renderExp();if(t==='rest')renderRests();
+}
+function setView(v){view=v;document.getElementById('vt-day').classList.toggle('on',v==='day');document.getElementById('vt-all').classList.toggle('on',v==='all');scheduleSave();renderItin();}
+function setDay(i){activeDay=i;scheduleSave();renderItin();}
+function rateChanged(){rate=+document.getElementById('rateIn').value||1.1;document.getElementById('revRate').textContent=(1/rate).toFixed(3);scheduleSave();renderItin();renderExp();renderRests();}
+function render(){renderItin();renderExp();renderRests();}
+function renderItin(){renderDtabs();renderProgress();renderDays();}
+function renderDtabs(){
+  const el=document.getElementById('dtabs');el.style.display=view==='day'?'flex':'none';if(view!=='day')return;
+  el.innerHTML=days.map((d,i)=>`<button class="dtab ${i===activeDay?'on':''}" onclick="setDay(${i})">${d.lbl}</button>`).join('');
+}
+function renderProgress(){
+  const all=days.flatMap(d=>d.items),done=all.filter(i=>i.done).length,pct=all.length?Math.round(done/all.length*100):0;
+  document.getElementById('progLbl').textContent=`${done} of ${all.length} activities done · ${pct}%`;
+  document.getElementById('progFill').style.width=pct+'%';
+}
+function renderDays(){
+  const c=document.getElementById('daysCont');const show=view==='all'?days:[days[activeDay]];
+  c.innerHTML=show.map(d=>dayHTML(d)).join('');attachDrag();
+}
+function dayHTML(d){
+  return`<div class="day-blk"><div class="day-hdr"><div><div class="day-title">${d.lbl} — ${d.date}</div><div class="day-sub">${d.theme}</div></div><button class="abtn" onclick="openActForm(${d.id})">+ Add</button></div>
+  <div class="tscroll"><table class="itbl"><thead><tr>
+    <th style="width:20px"></th><th style="width:22px">✓</th><th style="min-width:92px">Time</th>
+    <th style="min-width:150px">Activity</th><th style="min-width:94px">Category</th>
+    <th style="min-width:90px">NT$</th><th style="min-width:90px">฿ THB</th>
+    <th style="min-width:220px">Notes</th><th style="min-width:66px">Move to</th><th style="width:26px"></th>
+  </tr></thead><tbody id="tb-${d.id}">${d.items.map(it=>iRow(it,d.id)).join('')}</tbody></table></div></div>`;
+}
+function iRow(it,did){
+  const thb=Math.round(it.ntd*rate);
+  const mo=days.filter(d=>d.id!==did).map(d=>`<option value="${d.id}">${d.lbl}</option>`).join('');
+  return`<tr draggable="true" data-id="${it.id}" data-did="${did}" class="${it.done?'done':''}">
+    <td><span class="dh">⠿</span></td>
+    <td><input type="checkbox" class="cb" ${it.done?'checked':''} onchange="toggleDone('${it.id}',this.checked)"></td>
+    <td><input class="inp-time" value="${it.time}" onchange="upd('${it.id}','time',this.value)"></td>
+    <td><input class="inp-name" value="${it.name}" onchange="upd('${it.id}','name',this.value)" title="${it.name}"></td>
+    <td><select class="sel-cat" onchange="upd('${it.id}','cat',this.value)">${Object.entries(CATS).map(([k,v])=>`<option value="${k}" ${it.cat===k?'selected':''}>${v}</option>`).join('')}</select></td>
+    <td><input class="inp-curr" type="number" value="${it.ntd}" min="0" oninput="onNTD(this,'${it.id}')"></td>
+    <td><input class="inp-curr" type="number" value="${thb}" min="0" oninput="onTHB(this,'${it.id}')"></td>
+    <td><input class="inp-notes" value="${it.notes||''}" onchange="upd('${it.id}','notes',this.value)" placeholder="note..." title="${it.notes||''}"></td>
+    <td><select class="sel-move" onchange="moveIt('${it.id}',${did},+this.value)"><option value="" disabled selected>→</option>${mo}</select></td>
+    <td><button class="xbtn" onclick="delIt('${it.id}',${did})">✕</button></td>
+  </tr>`;
+}
+function onNTD(el,id){
+  const ntd=+el.value||0;const thbEl=el.closest('tr').querySelectorAll('.inp-curr')[1];
+  if(thbEl&&document.activeElement===el)thbEl.value=Math.round(ntd*rate);
+  for(const d of days){const i=d.items.find(x=>x.id===id);if(i){i.ntd=ntd;break;}}
+  scheduleSave();renderExp();
+}
+function onTHB(el,id){
+  const ntd=Math.round((+el.value||0)/rate);const ntdEl=el.closest('tr').querySelectorAll('.inp-curr')[0];
+  if(ntdEl&&document.activeElement===el)ntdEl.value=ntd;
+  for(const d of days){const i=d.items.find(x=>x.id===id);if(i){i.ntd=ntd;break;}}
+  scheduleSave();renderExp();
+}
+function toggleDone(id,v){for(const d of days){const i=d.items.find(x=>x.id===id);if(i){i.done=v;break;}}scheduleSave();renderItin();}
+function upd(id,f,v){for(const d of days){const i=d.items.find(x=>x.id===id);if(i){i[f]=f==='ntd'?+v:v;break;}}scheduleSave();if(f==='ntd')renderExp();}
+function delIt(id,did){const d=days.find(x=>x.id===did);if(d)d.items=d.items.filter(i=>i.id!==id);scheduleSave();renderItin();renderExp();}
+function moveIt(id,fid,tid){
+  const fd=days.find(d=>d.id===fid),td=days.find(d=>d.id===tid);if(!fd||!td)return;
+  const idx=fd.items.findIndex(i=>i.id===id);if(idx===-1)return;
+  const[m]=fd.items.splice(idx,1);td.items.push(m);scheduleSave();showToast('Moved to '+td.lbl);renderItin();renderExp();
+}
+function attachDrag(){
+  document.querySelectorAll('.itbl tbody tr').forEach(row=>{
+    row.addEventListener('dragstart',e=>{dragSrc=row;e.dataTransfer.effectAllowed='move';});
+    row.addEventListener('dragend',()=>{document.querySelectorAll('.dragover').forEach(r=>r.classList.remove('dragover'));});
+    row.addEventListener('dragover',e=>{e.preventDefault();document.querySelectorAll('.dragover').forEach(r=>r.classList.remove('dragover'));if(row!==dragSrc)row.classList.add('dragover');});
+    row.addEventListener('drop',e=>{
+      e.preventDefault();if(!dragSrc||dragSrc===row)return;
+      const sd=+dragSrc.dataset.did,td_=+row.dataset.did;if(sd!==td_)return;
+      const day=days.find(d=>d.id===sd);
+      const si=day.items.findIndex(i=>i.id===dragSrc.dataset.id),ti=day.items.findIndex(i=>i.id===row.dataset.id);
+      const[m]=day.items.splice(si,1);day.items.splice(ti,0,m);scheduleSave();renderItin();
+    });
+  });
+}
+function openActForm(did){
+  modalDayId=did;document.getElementById('actFormTitle').textContent='Add activity — '+days.find(d=>d.id===did)?.lbl;
+  ['an','at','antd','anotes'].forEach(id=>document.getElementById(id).value='');document.getElementById('ac').value='activity';
+  const f=document.getElementById('actForm');f.classList.add('on');f.scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+function closeActForm(){document.getElementById('actForm').classList.remove('on');}
+function saveAct(){
+  const name=document.getElementById('an').value.trim();if(!name)return;
+  const it={id:uid(),name,time:document.getElementById('at').value,cat:document.getElementById('ac').value,ntd:+document.getElementById('antd').value||0,notes:document.getElementById('anotes').value,done:false};
+  const d=days.find(x=>x.id===modalDayId);if(d)d.items.push(it);closeActForm();scheduleSave();renderItin();renderExp();
+}
+function renderRests(){
+  const tb=document.getElementById('restBody');if(!tb)return;
+  tb.innerHTML=rests.map(r=>{
+    const thb=Math.round(r.ntdPP*2*rate);
+    const dopts=days.map(d=>`<option value="${d.id}" ${r.assigned===d.id?'selected':''}>${d.lbl}</option>`).join('');
+    return`<tr>
+      <td><input class="ri" value="${r.name}" onchange="updR('${r.id}','name',this.value)" style="font-weight:600" title="${r.name}"></td>
+      <td><input class="ri" value="${r.area}" onchange="updR('${r.id}','area',this.value)"></td>
+      <td><input class="ri" value="${r.cuisine}" onchange="updR('${r.id}','cuisine',this.value)"></td>
+      <td class="amtcell">NT$${(r.ntdPP*2).toLocaleString()}</td>
+      <td class="amtcell" style="color:#8e8e93">฿${thb.toLocaleString()}</td>
+      <td><select class="rsl" onchange="updR('${r.id}','status',this.value)">${['Want to go','Done','Skip'].map(s=>`<option ${r.status===s?'selected':''}>${s}</option>`).join('')}</select></td>
+      <td><input class="ri" value="${r.notes||''}" onchange="updR('${r.id}','notes',this.value)" placeholder="notes..." title="${r.notes||''}"></td>
+      <td><select class="dasl" onchange="assignRest('${r.id}',this.value)">
+        <option value="" ${r.assigned===null?'selected':''}>— none —</option>${dopts}
+      </select></td>
+      <td><button class="xbtn" onclick="delRest('${r.id}')">✕</button></td>
+    </tr>`;
+  }).join('');
+}
+function updR(id,f,v){const r=rests.find(x=>x.id===id);if(r){r[f]=v;scheduleSave();renderRests();}}
+function assignRest(rid,val){
+  const r=rests.find(x=>x.id===rid);if(!r)return;
+  const newDid=val===''?null:+val;if(r.assigned===newDid)return;
+  if(r.assigned!==null&&r.lid){const od=days.find(d=>d.id===r.assigned);if(od)od.items=od.items.filter(i=>i.id!==r.lid);}
+  r.assigned=newDid;r.lid=null;
+  if(newDid!==null){
+    const td=days.find(d=>d.id===newDid);
+    if(td){const ni={id:uid(),name:r.name,time:'TBD',cat:'food',ntd:r.ntdPP*2,notes:r.cuisine+(r.notes?' · '+r.notes:''),done:false};r.lid=ni.id;td.items.push(ni);showToast(r.name+' added to '+td.lbl);}
+  }
+  scheduleSave();renderRests();renderItin();renderExp();
+}
+function delRest(id){
+  const r=rests.find(x=>x.id===id);if(r&&r.assigned!==null&&r.lid){const d=days.find(x=>x.id===r.assigned);if(d)d.items=d.items.filter(i=>i.id!==r.lid);}
+  rests=rests.filter(x=>x.id!==id);scheduleSave();renderRests();renderItin();renderExp();
+}
+function toggleRestForm(){document.getElementById('restForm').classList.toggle('on');}
+function saveRest(){
+  const name=document.getElementById('rn').value.trim();if(!name)return;
+  rests.push({id:uid(),name,area:document.getElementById('ra').value,cuisine:document.getElementById('rc').value,ntdPP:+document.getElementById('rp').value||0,notes:document.getElementById('rnotes').value,status:'Want to go',assigned:null,lid:null});
+  toggleRestForm();['rn','ra','rc','rp','rnotes'].forEach(id=>document.getElementById(id).value='');scheduleSave();renderRests();
+}
+function renderExp(){
+  rate=+document.getElementById('rateIn').value||1.1;
+  const tots={};SCATS.forEach(c=>tots[c]=0);
+  for(const d of days)for(const i of d.items)if(tots[i.cat]!==undefined)tots[i.cat]+=i.ntd;
+  const grid=document.getElementById('sumGrid');
+  if(grid)grid.innerHTML=SCATS.map(cat=>{const n=tots[cat];return`<div class="sc"><div class="sc-lbl">${CATS[cat]}</div><div class="sc-ntd">NT$${n.toLocaleString()}</div><div class="sc-thb">฿${Math.round(n*rate).toLocaleString()}</div></div>`;}).join('');
+  const grand=Object.values(tots).reduce((a,b)=>a+b,0);
+  const gN=document.getElementById('gNTD'),gT=document.getElementById('gTHB');
+  if(gN)gN.textContent='NT$'+grand.toLocaleString();if(gT)gT.textContent='฿'+Math.round(grand*rate).toLocaleString();
+  const dbk=document.getElementById('dbk');
+  if(dbk){dbk.innerHTML='<div style="font-size:12px;font-weight:600;color:#1c1c1e;margin-bottom:10px">Breakdown by day</div>'+days.map(d=>{
+    const t=d.items.reduce((s,i)=>s+i.ntd,0),pct=grand?Math.round(t/grand*100):0;
+    return`<div class="dbk-row"><span class="dbk-lbl">${d.lbl}</span><div class="dbk-bar"><div class="dbk-fill" style="width:${pct}%"></div></div><span class="dbk-val">NT$${t.toLocaleString()} · ฿${Math.round(t*rate).toLocaleString()}</span></div>`;
+  }).join('');}
+}
+loadSaved();
+</script>
+</body>
+</html>
