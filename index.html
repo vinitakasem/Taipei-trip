@@ -124,7 +124,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,sans-seri
 </div>
 <div class="mtabs">
   <button class="mtab on" onclick="mTab('itin')">Itinerary</button>
-  <button class="mtab" onclick="mTab('rest')">Restaurants</button>
+  <button class="mtab" onclick="mTab('rest')">Wishlist</button>
   <button class="mtab" onclick="mTab('exp')">Expenses</button>
 </div>
 <div class="sec on" id="sec-itin">
@@ -162,10 +162,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,sans-seri
 </div>
 <div class="sec" id="sec-rest">
   <div class="card">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;flex-wrap:wrap;gap:8px">
       <div class="sec-title" style="margin:0">Restaurant wishlist</div>
       <button class="radd" onclick="toggleRestForm()">+ Add restaurant</button>
     </div>
+    <div style="font-size:10px;color:#8e8e93;margin-bottom:10px">Assign to a day to auto-add to itinerary</div>
     <div class="tscroll">
       <table class="rtbl">
         <thead><tr>
@@ -191,6 +192,51 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,sans-seri
         <button class="fbtn" onclick="saveRest()">Save</button>
       </div>
     </div>
+ </div>
+    <div style="height:0.5px;background:#e0e0e0;margin:20px 0"></div>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;flex-wrap:wrap;gap:8px">
+      <div class="sec-title" style="margin:0">Activity wishlist</div>
+      <button class="radd" onclick="toggleWishForm()">+ Add activity</button>
+    </div>
+    <div style="font-size:10px;color:#8e8e93;margin-bottom:10px">Places &amp; experiences to explore · move to a day to add to itinerary</div>
+    <div class="tscroll">
+      <table class="rtbl">
+        <thead><tr>
+          <th style="width:52px">↑↓</th>
+          <th style="min-width:150px">Activity / Place</th>
+          <th style="min-width:95px">Area / MRT</th>
+          <th style="min-width:85px">Category</th>
+          <th style="min-width:90px">Status</th>
+          <th style="min-width:200px">Notes</th>
+          <th style="min-width:76px">Move to day</th>
+          <th style="width:28px"></th>
+        </tr></thead>
+        <tbody id="wishBody"></tbody>
+      </table>
+    </div>
+    <div class="form-blk" id="wishForm">
+      <h3>Add to activity wishlist</h3>
+      <div class="fgrid">
+        <div><label>Activity / Place</label><input id="wn" placeholder="e.g. Jiufen Old Street"></div>
+        <div><label>Area / MRT</label><input id="wa" placeholder="e.g. Keelung area"></div>
+        <div><label>Category</label><select id="wc">
+          <option value="activity">Activity</option><option value="food">Food</option>
+          <option value="shopping">Shopping</option><option value="nature">Nature</option>
+          <option value="culture">Culture</option><option value="misc">Misc</option>
+        </select></div>
+        <div><label>Status</label><select id="ws">
+          <option value="For next trip">For next trip</option>
+          <option value="Want to go">Want to go</option>
+          <option value="Done">Done</option>
+          <option value="Skip">Skip</option>
+        </select></div>
+        <div class="full"><label>Notes</label><textarea id="wnotes" placeholder="Tips, best time to visit, what to try..."></textarea></div>
+      </div>
+      <div class="frow">
+        <button class="fcnl" onclick="toggleWishForm()">Cancel</button>
+        <button class="fbtn" onclick="saveWish()">Save</button>
+      </div>
+    </div>
   </div>
 </div>
 <div class="sec" id="sec-exp">
@@ -211,6 +257,7 @@ let rate=1.1,view='day',activeDay=0,modalDayId=null,dragSrc=null,saveTimer=null;
 const CATS={activity:'Activity',transport:'Transport',food:'Food',hotel:'Hotel',flight:'Flight',shopping:'Shopping',misc:'Misc'};
 const SCATS=['transport','hotel','flight','food','activity','shopping','misc'];
 function uid(){return Math.random().toString(36).slice(2,9)}
+const DW=[];
 const DD=[
   {id:0,lbl:'Day 1',date:'Sat 18 Apr',theme:'Arrival + Historic Taipei',items:[
     {id:'d1a',name:'Airport MRT (arrival)',time:'14:25–15:15',cat:'transport',ntd:320,notes:'TPE → Taipei Main · NT$160 x2',done:false},
@@ -275,7 +322,7 @@ const DR=[
   {id:'r4',name:'Ay-Chung Noodle',area:'Ximending',cuisine:'Street food',ntdPP:80,notes:'Oyster vermicelli · queue expected',status:'Want to go',assigned:null,lid:null},
   {id:'r5',name:'Miaokou Pork Rice',area:'Keelung',cuisine:'Taiwanese',ntdPP:150,notes:'Day 2 — try at Miaokou Night Market',status:'Want to go',assigned:null,lid:null},
 ];
-let days,rests;
+let days,rests,wishes;
 function setSave(s){
   const dot=document.getElementById('saveDot'),msg=document.getElementById('saveMsg');
   if(!dot||!msg)return;
@@ -286,7 +333,7 @@ function setSave(s){
 }
 function persist(){
   setSave('saving');
-  try{localStorage.setItem(SK,JSON.stringify({days,rests,rate,view,activeDay}));setSave('saved');}
+  try{localStorage.setItem(SK,JSON.stringify({days,rests,wishes,rate,view,activeDay}));setSave('saved');}
   catch(e){setSave('ready');}
 }
 function scheduleSave(){clearTimeout(saveTimer);saveTimer=setTimeout(persist,500);}
@@ -297,21 +344,21 @@ function loadSaved(){
       const d=JSON.parse(raw);
       days=d.days||JSON.parse(JSON.stringify(DD));
       rests=d.rests||JSON.parse(JSON.stringify(DR));
+      wishes=d.wishes||JSON.parse(JSON.stringify(DW));
       rate=d.rate||1.1;view=d.view||'day';
       activeDay=typeof d.activeDay==='number'?d.activeDay:0;
       document.getElementById('rateIn').value=rate;
       document.getElementById('revRate').textContent=(1/rate).toFixed(3);
       setSave('saved');
-    } else {
-      days=JSON.parse(JSON.stringify(DD));rests=JSON.parse(JSON.stringify(DR));setSave('ready');
+   } else {
+      days=JSON.parse(JSON.stringify(DD));rests=JSON.parse(JSON.stringify(DR));wishes=JSON.parse(JSON.stringify(DW));setSave('ready');
     }
-  }catch(e){days=JSON.parse(JSON.stringify(DD));rests=JSON.parse(JSON.stringify(DR));setSave('ready');}
-  render();
+}catch(e){days=JSON.parse(JSON.stringify(DD));rests=JSON.parse(JSON.stringify(DR));wishes=JSON.parse(JSON.stringify(DW));setSave('ready');}  render();
 }
 function resetAll(){
   if(!confirm('Reset everything to defaults? Cannot be undone.'))return;
   localStorage.removeItem(SK);
-  days=JSON.parse(JSON.stringify(DD));rests=JSON.parse(JSON.stringify(DR));
+  days=JSON.parse(JSON.stringify(DD));rests=JSON.parse(JSON.stringify(DR));wishes=JSON.parse(JSON.stringify(DW));
   rate=1.1;view='day';activeDay=0;
   document.getElementById('rateIn').value=1.1;document.getElementById('revRate').textContent='0.909';
   persist();render();showToast('Reset to defaults');
@@ -321,12 +368,12 @@ function mTab(t){
   document.querySelectorAll('.mtab').forEach((b,i)=>b.classList.toggle('on',['itin','rest','exp'][i]===t));
   document.querySelectorAll('.sec').forEach(s=>s.classList.remove('on'));
   document.getElementById('sec-'+t).classList.add('on');
-  if(t==='exp')renderExp();if(t==='rest')renderRests();
+  if(t==='exp')renderExp();if(t==='rest'){renderRests();renderWishes();}
 }
 function setView(v){view=v;document.getElementById('vt-day').classList.toggle('on',v==='day');document.getElementById('vt-all').classList.toggle('on',v==='all');scheduleSave();renderItin();}
 function setDay(i){activeDay=i;scheduleSave();renderItin();}
 function rateChanged(){rate=+document.getElementById('rateIn').value||1.1;document.getElementById('revRate').textContent=(1/rate).toFixed(3);scheduleSave();renderItin();renderExp();renderRests();}
-function render(){renderItin();renderExp();renderRests();}
+function render(){renderItin();renderExp();renderRests();renderWishes();}
 function renderItin(){renderDtabs();renderProgress();renderDays();}
 function renderDtabs(){
   const el=document.getElementById('dtabs');el.style.display=view==='day'?'flex':'none';if(view!=='day')return;
@@ -424,7 +471,8 @@ function renderRests(){
       <td><input class="ri" value="${r.cuisine}" onchange="updR('${r.id}','cuisine',this.value)"></td>
       <td class="amtcell">NT$${(r.ntdPP*2).toLocaleString()}</td>
       <td class="amtcell" style="color:#8e8e93">฿${thb.toLocaleString()}</td>
-      <td><select class="rsl" onchange="updR('${r.id}','status',this.value)">${['Want to go','Done','Skip'].map(s=>`<option ${r.status===s?'selected':''}>${s}</option>`).join('')}</select></td>
+      <td><select class="rsl" onchange="updR('${r.id}','status',this.value)">${['Want to go','Done','Skip','For next trip'].map(s=>`<option ${r.status===s?'selected':''}>${s}</option>`).join('')}
+</select></td>
       <td><input class="ri" value="${r.notes||''}" onchange="updR('${r.id}','notes',this.value)" placeholder="notes..." title="${r.notes||''}"></td>
       <td><select class="dasl" onchange="assignRest('${r.id}',this.value)">
         <option value="" ${r.assigned===null?'selected':''}>— none —</option>${dopts}
@@ -471,6 +519,45 @@ function renderExp(){
   }).join('');}
 }
 function exportData(){const d=localStorage.getItem('taipei-trip-v7');if(d){prompt('Copy all this text and send to Claude:',d);}else{alert('No saved data found.');}}
+function renderWishes(){
+  const tb=document.getElementById('wishBody');if(!tb)return;
+  tb.innerHTML=(wishes||[]).map((w,idx)=>{
+    const dopts=days.map(d=>`<option value="${d.id}">${d.lbl}</option>`).join('');
+    return`<tr>
+      <td style="white-space:nowrap"><button class="updn" onclick="wishUp(${idx})">↑</button><button class="updn" onclick="wishDown(${idx})">↓</button></td>
+      <td><input class="ri" value="${w.name}" onchange="updW(${idx},'name',this.value)" style="font-weight:600" title="${w.name}"></td>
+      <td><input class="ri" value="${w.area||''}" onchange="updW(${idx},'area',this.value)"></td>
+      <td><select class="rsl" onchange="updW(${idx},'cat',this.value)">
+        ${['activity','food','shopping','nature','culture','misc'].map(c=>`<option value="${c}" ${w.cat===c?'selected':''}>${c.charAt(0).toUpperCase()+c.slice(1)}</option>`).join('')}
+      </select></td>
+      <td><select class="rsl" onchange="updW(${idx},'status',this.value)">
+        ${['For next trip','Want to go','Done','Skip'].map(s=>`<option ${w.status===s?'selected':''}>${s}</option>`).join('')}
+      </select></td>
+      <td><input class="ri" value="${w.notes||''}" onchange="updW(${idx},'notes',this.value)" placeholder="notes..."></td>
+      <td><select class="dasl" onchange="assignWish(${idx},this.value)">
+        <option value="">→ Day</option>${dopts}
+      </select></td>
+      <td><button class="xbtn" onclick="delWish(${idx})">✕</button></td>
+    </tr>`;
+  }).join('');
+}
+function updW(idx,f,v){if(wishes[idx])wishes[idx][f]=v;scheduleSave();}
+function wishUp(idx){if(idx<=0)return;[wishes[idx-1],wishes[idx]]=[wishes[idx],wishes[idx-1]];scheduleSave();renderWishes();}
+function wishDown(idx){if(idx>=wishes.length-1)return;[wishes[idx+1],wishes[idx]]=[wishes[idx],wishes[idx+1]];scheduleSave();renderWishes();}
+function delWish(idx){wishes.splice(idx,1);scheduleSave();renderWishes();}
+function assignWish(idx,val){
+  if(!val)return;const w=wishes[idx];if(!w)return;
+  const td=days.find(d=>d.id===+val);if(!td)return;
+  const ni={id:uid(),name:w.name,time:'TBD',cat:w.cat==='nature'||w.cat==='culture'?'activity':w.cat,ntd:0,notes:(w.area?w.area+' · ':'')+w.notes,done:false};
+  td.items.push(ni);scheduleSave();showToast(w.name+' added to '+td.lbl);renderItin();renderExp();
+}
+function toggleWishForm(){document.getElementById('wishForm').classList.toggle('on');}
+function saveWish(){
+  const name=document.getElementById('wn').value.trim();if(!name)return;
+  wishes.push({name,area:document.getElementById('wa').value,cat:document.getElementById('wc').value,status:document.getElementById('ws').value,notes:document.getElementById('wnotes').value});
+  toggleWishForm();['wn','wa','wnotes'].forEach(id=>document.getElementById(id).value='');
+  scheduleSave();renderWishes();
+}
 loadSaved();
 </script>
 </body>
