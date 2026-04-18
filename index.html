@@ -384,12 +384,23 @@ function renderProgress(){
   document.getElementById('progLbl').textContent=`${done} of ${all.length} activities done · ${pct}%`;
   document.getElementById('progFill').style.width=pct+'%';
 }
-function renderDays(){
+function parseTime(t){
+  if(!t||t.trim()==='')return 9999;
+  const m=t.match(/(\d{1,2}):(\d{2})/);
+  if(!m)return 9998;
+  return parseInt(m[1])*60+parseInt(m[2]);
+}
+function sortDayItems(did){
+  const d=days.find(x=>x.id===did);if(!d)return;
+  d.items.sort((a,b)=>parseTime(a.time)-parseTime(b.time));
+  scheduleSave();renderItin();
+}
+  function renderDays(){
   const c=document.getElementById('daysCont');const show=view==='all'?days:[days[activeDay]];
   c.innerHTML=show.map(d=>dayHTML(d)).join('');attachDrag();
 }
 function dayHTML(d){
-  return`<div class="day-blk"><div class="day-hdr"><div><div class="day-title">${d.lbl} — ${d.date}</div><div class="day-sub">${d.theme}</div></div><button class="abtn" onclick="openActForm(${d.id})">+ Add</button></div>
+  return`<div class="day-blk"><div class="day-hdr"><div><div class="day-title">${d.lbl} — ${d.date}</div><div class="day-sub">${d.theme}</div></div><div style="display:flex;gap:5px"><button class="abtn" onclick="sortDayItems(${d.id})">Sort by time</button><button class="abtn" onclick="openActForm(${d.id})">+ Add</button></div></div>
   <div class="tscroll"><table class="itbl"><thead><tr>
     <th style="width:20px"></th><th style="width:22px">✓</th><th style="min-width:92px">Time</th>
     <th style="min-width:150px">Activity</th><th style="min-width:94px">Category</th>
@@ -426,7 +437,13 @@ function onTHB(el,id){
   scheduleSave();renderExp();
 }
 function toggleDone(id,v){for(const d of days){const i=d.items.find(x=>x.id===id);if(i){i.done=v;break;}}scheduleSave();renderItin();}
-function upd(id,f,v){for(const d of days){const i=d.items.find(x=>x.id===id);if(i){i[f]=f==='ntd'?+v:v;break;}}scheduleSave();if(f==='ntd')renderExp();}
+function upd(id,f,v){
+  let did=null;
+  for(const d of days){const i=d.items.find(x=>x.id===id);if(i){i[f]=f==='ntd'?+v:v;did=d.id;break;}}
+  scheduleSave();
+  if(f==='ntd')renderExp();
+  if(f==='time'&&did!==null){const d=days.find(x=>x.id===did);if(d){d.items.sort((a,b)=>parseTime(a.time)-parseTime(b.time));renderItin();}}
+}
 function moveUp(id,did){const d=days.find(x=>x.id===did);if(!d)return;const i=d.items.findIndex(x=>x.id===id);if(i<=0)return;[d.items[i-1],d.items[i]]=[d.items[i],d.items[i-1]];scheduleSave();renderItin();}
 function moveDown(id,did){const d=days.find(x=>x.id===did);if(!d)return;const i=d.items.findIndex(x=>x.id===id);if(i>=d.items.length-1)return;[d.items[i+1],d.items[i]]=[d.items[i],d.items[i+1]];scheduleSave();renderItin();}
 function delIt(id,did){const d=days.find(x=>x.id===did);if(d)d.items=d.items.filter(i=>i.id!==id);scheduleSave();renderItin();renderExp();}
@@ -442,7 +459,9 @@ function moveIt(id,fid,val){
   const tid=+val;
   const fd=days.find(d=>d.id===fid),td=days.find(d=>d.id===tid);if(!fd||!td)return;
   const idx=fd.items.findIndex(i=>i.id===id);if(idx===-1)return;
-  const[m]=fd.items.splice(idx,1);td.items.push(m);scheduleSave();showToast('Moved to '+td.lbl);renderItin();renderExp();
+  const[m]=fd.items.splice(idx,1);td.items.push(m);
+  td.items.sort((a,b)=>parseTime(a.time)-parseTime(b.time));
+  scheduleSave();showToast('Moved to '+td.lbl);renderItin();renderExp();
 }
 function attachDrag(){
   document.querySelectorAll('.itbl tbody tr').forEach(row=>{
@@ -467,7 +486,9 @@ function closeActForm(){document.getElementById('actForm').classList.remove('on'
 function saveAct(){
   const name=document.getElementById('an').value.trim();if(!name)return;
   const it={id:uid(),name,time:document.getElementById('at').value,cat:document.getElementById('ac').value,ntd:+document.getElementById('antd').value||0,notes:document.getElementById('anotes').value,done:false};
-  const d=days.find(x=>x.id===modalDayId);if(d)d.items.push(it);closeActForm();scheduleSave();renderItin();renderExp();
+  const d=days.find(x=>x.id===modalDayId);
+  if(d){d.items.push(it);d.items.sort((a,b)=>parseTime(a.time)-parseTime(b.time));}
+  closeActForm();scheduleSave();renderItin();renderExp();
 }
 function renderRests(){
   const tb=document.getElementById('restBody');if(!tb)return;
